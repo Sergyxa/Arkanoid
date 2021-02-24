@@ -12,5 +12,6 @@ namespace game_arg
         public int ballX, ballY;
         public int dirX = 0, dirY = 0;
         public int _score;
+        public int lives;
     }
 }

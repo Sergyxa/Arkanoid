@@ -10,6 +10,7 @@ namespace game_arg
         Player player = new Player();
         Physics physics = new Physics();
         public Label score;
+        public Label livesL;
         public Form1()
         {
             InitializeComponent();
@@ -19,9 +20,13 @@ namespace game_arg
 
             InitializeComponent();
             score = new Label();
+            livesL = new Label();
             score.Location = new Point((MapController.mapWidth + 1) * 20, 50);
+            livesL.Location = new Point((MapController.mapWidth + 1) * 20, 100);
             score.Text = "Счёт:" + player._score;
+            livesL.Text = "Жизни:" + player.lives;
             this.Controls.Add(score);
+            this.Controls.Add(livesL);
             timer1.Tick += new EventHandler(update);
             this.KeyDown += new KeyEventHandler(inputCheck);
             Initialization();
@@ -33,7 +38,7 @@ namespace game_arg
             switch (e.KeyCode)
             {
                 case Keys.Right:
-                    if (player.platformX + 1 < MapController.mapWidth - 1)
+                    if (player.platformX + 2 < MapController.mapWidth - 1)
                         player.platformX++;
                     break;
                 case Keys.Left:
@@ -59,11 +64,37 @@ namespace game_arg
             }
         }
 
+        public void Continue()
+        {
+            timer1.Interval = 50;
+            score.Text = "Счёт:" + player._score;
+            livesL.Text = "Жизни:" + player.lives;
+
+            map.map[player.platformY, player.platformX] = 9;
+            map.map[player.platformY, player.platformX + 1] = 99;
+
+            player.ballX = player.platformX + 1;
+            player.ballY = player.platformY - 1;
+            map.map[player.ballY, player.ballX] = 8;
+
+            player.dirX = 1;
+            player.dirY = -1;
+            timer1.Start();
+        }
+
         private void update(object sender, EventArgs e)
         {
             if (player.ballY + player.dirY > MapController.mapHeight - 1)
             {
-                Initialization();
+                player.lives--;
+                if (player.lives <= 0)
+                {
+                    Initialization();
+                }
+                else
+                {
+                    Continue();
+                }
             }
 
             map.map[player.ballY, player.ballX] = 0;
@@ -94,7 +125,9 @@ namespace game_arg
             this.Height = (MapController.mapHeight + 2) * 20;
             timer1.Interval = 50;
             player._score = 0;
+            player.lives = 3;
             score.Text = "Счёт:" + player._score;
+            livesL.Text = "Жизни:" + player.lives;
             for (int i = 0; i < MapController.mapHeight; i++)
             {
                 for (int j = 0; j < MapController.mapWidth; j++)
